@@ -137,7 +137,22 @@ def salvar_registro(tabela, dados):
 
 def atualizar_registro(tabela, id_linha, dados):
     try:
-        dados_formatados = {k.lower(): v for k, v in dados.items()}
+        # Mapeamento reverso para garantir que o Supabase receba o nome correto das colunas
+        map_reverse = {
+            'Preço': 'preco', 'Fornecedor': 'fornecedor', 'Qtd': 'quantidade',
+            'ID_Pedido': 'id_pedido', 'Obra': 'obra', 'Item': 'item', 'Unidade': 'unidade',
+            'Apropriacao': 'apropriacao', 'Data_Necessidade': 'data_necessidade',
+            'Solicitante': 'solicitante', 'Status_Compra': 'status_compra',
+            'Data_Previsao_Entrega': 'data_previsao_entrega', 'Recebido_Na_Obra': 'recebido_na_obra',
+            'Usuario': 'usuario', 'Senha': 'senha', 'Funcao': 'funcao', 'Obras_Acesso': 'obras_acesso',
+            'Nome_Obra': 'nome_obra', 'Endereco': 'endereco', 'Status': 'status'
+        }
+        
+        dados_formatados = {}
+        for k, v in dados.items():
+            db_key = map_reverse.get(k, k.lower())
+            dados_formatados[db_key] = v
+
         # Converter datas para string ISO
         for k, v in dados_formatados.items():
             if isinstance(v, (date, pd.Timestamp)):
