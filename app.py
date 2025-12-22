@@ -182,7 +182,8 @@ if 'df_unidades' not in st.session_state:
 def converter_para_excel(df):
     from io import BytesIO
     output = BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter' if 'xlsxwriter' in pd.io.excel.ExcelWriter.supported_engines else 'openpyxl') as writer:
+    # Usando openpyxl diretamente para evitar erros de compatibilidade
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Planilha1')
     return output.getvalue()
 
