@@ -73,6 +73,20 @@ def buscar_dados(tabela):
         response = supabase.table(tabela).select("*").execute()
         df = pd.DataFrame(response.data)
         
+        # Estrutura padrão (Garantir colunas caso a tabela esteja vazia)
+        colunas_padrao = {
+            'solicitacoes': ['id', 'id_pedido', 'obra', 'item', 'unidade', 'apropriacao', 'data_necessidade', 'solicitante', 'status_compra', 'data_previsao_entrega', 'recebido_na_obra'],
+            'usuarios': ['id', 'usuario', 'senha', 'funcao', 'obras_acesso'],
+            'obras': ['id', 'nome_obra', 'endereco', 'status'],
+            'apropriacoes': ['id', 'obra', 'apropriacao'],
+            'unidades': ['id', 'unidade']
+        }
+        
+        if tabela in colunas_padrao:
+            for col in colunas_padrao[tabela]:
+                if col not in df.columns:
+                    df[col] = None
+
         # Ajustes de tipos e colunas (compatibilidade com código antigo)
         if tabela == 'solicitacoes':
             colunas_de_data = ['data_necessidade', 'data_previsao_entrega']
@@ -80,7 +94,6 @@ def buscar_dados(tabela):
                 if col in df.columns:
                     df[col] = pd.to_datetime(df[col], errors='coerce')
             
-            # Renomear para manter compatibilidade com o restante do código
             df = df.rename(columns={
                 'id_pedido': 'ID_Pedido', 'obra': 'Obra', 'item': 'Item', 'unidade': 'Unidade',
                 'apropriacao': 'Apropriacao', 'data_necessidade': 'Data_Necessidade',
@@ -88,9 +101,7 @@ def buscar_dados(tabela):
                 'data_previsao_entrega': 'Data_Previsao_Entrega', 'recebido_na_obra': 'Recebido_Na_Obra'
             })
         elif tabela == 'usuarios':
-            df = df.rename(columns={
-                'usuario': 'Usuario', 'senha': 'Senha', 'funcao': 'Funcao', 'obras_acesso': 'Obras_Acesso'
-            })
+            df = df.rename(columns={'usuario': 'Usuario', 'senha': 'Senha', 'funcao': 'Funcao', 'obras_acesso': 'Obras_Acesso'})
         elif tabela == 'obras':
             df = df.rename(columns={'nome_obra': 'Nome_Obra', 'endereco': 'Endereco', 'status': 'Status'})
         elif tabela == 'apropriacoes':
