@@ -76,7 +76,7 @@ def buscar_dados(tabela):
         
         # Estrutura padrão (Garantir colunas caso a tabela esteja vazia)
         colunas_padrao = {
-            'solicitacoes': ['id', 'id_pedido', 'obra', 'item', 'unidade', 'apropriacao', 'data_necessidade', 'solicitante', 'status_compra', 'data_previsao_entrega', 'recebido_na_obra', 'preco', 'fornecedor'],
+            'solicitacoes': ['id', 'id_pedido', 'obra', 'item', 'unidade', 'apropriacao', 'data_necessidade', 'solicitante', 'status_compra', 'data_previsao_entrega', 'recebido_na_obra', 'preco', 'fornecedor', 'quantidade'],
             'usuarios': ['id', 'usuario', 'senha', 'funcao', 'obras_acesso'],
             'obras': ['id', 'nome_obra', 'endereco', 'status'],
             'apropriacoes': ['id', 'obra', 'apropriacao'],
@@ -86,7 +86,9 @@ def buscar_dados(tabela):
         if tabela in colunas_padrao:
             for col in colunas_padrao[tabela]:
                 if col not in df.columns:
-                    df[col] = 0 if col == 'preco' else ""
+                    if col == 'preco': df[col] = 0
+                    elif col == 'quantidade': df[col] = 1
+                    else: df[col] = ""
 
         # Ajustes de tipos e colunas (compatibilidade com código antigo)
         if tabela == 'solicitacoes':
@@ -95,15 +97,16 @@ def buscar_dados(tabela):
                 if col in df.columns:
                     df[col] = pd.to_datetime(df[col], errors='coerce')
             
-            # Garantir tipo numérico para preço
+            # Garantir tipos numéricos
             df['preco'] = pd.to_numeric(df['preco'], errors='coerce').fillna(0)
+            df['quantidade'] = pd.to_numeric(df['quantidade'], errors='coerce').fillna(1)
             
             df = df.rename(columns={
                 'id_pedido': 'ID_Pedido', 'obra': 'Obra', 'item': 'Item', 'unidade': 'Unidade',
                 'apropriacao': 'Apropriacao', 'data_necessidade': 'Data_Necessidade',
                 'solicitante': 'Solicitante', 'status_compra': 'Status_Compra',
                 'data_previsao_entrega': 'Data_Previsao_Entrega', 'recebido_na_obra': 'Recebido_Na_Obra',
-                'preco': 'Preço', 'fornecedor': 'Fornecedor'
+                'preco': 'Preço', 'fornecedor': 'Fornecedor', 'quantidade': 'Qtd'
             })
         elif tabela == 'usuarios':
             df = df.rename(columns={'usuario': 'Usuario', 'senha': 'Senha', 'funcao': 'Funcao', 'obras_acesso': 'Obras_Acesso'})
@@ -197,6 +200,7 @@ if 'carrinho_pedidos' not in st.session_state: st.session_state['carrinho_pedido
 def callback_adicionar_ao_carrinho():
     st.session_state['carrinho_pedidos'].append({
         "Item": st.session_state.temp_item,
+        "Qtd": st.session_state.temp_qtd,
         "Unidade": st.session_state.temp_unidade,
         "Apropriacao": st.session_state.temp_aprop,
         "Data_Necessidade": st.session_state.temp_data,
@@ -212,9 +216,9 @@ def callback_finalizar_pedido():
     for item in st.session_state['carrinho_pedidos']:
         dn = item['Data_Necessidade'].strftime('%Y-%m-%d')
         novo_reg = {
-            "id_pedido": novo_id, "obra": obra, "item": item['Item'], "unidade": item['Unidade'],
-            "apropriacao": item['Apropriacao'], "data_necessidade": dn, "solicitante": item['Solicitante'],
-            "status_compra": "Pendente", "recebido_na_obra": False
+            "id_pedido": novo_id, "obra": obra, "item": item['Item'], "quantidade": item['Qtd'],
+            "unidade": item['Unidade'], "apropriacao": item['Apropriacao'], "data_necessidade": dn,
+            "solicitante": item['Solicitante'], "status_compra": "Pendente", "recebido_na_obra": False
         }
         if not salvar_registro('solicitacoes', novo_reg):
             sucesso_total = False
@@ -343,7 +347,9 @@ elif menu == "📦 Gestão de Suprimentos":
                 st.subheader("1. Adicionar Item")
                 with st.form("add_item", clear_on_submit=True):
                     l_aprop = st.session_state['df_apropriacoes'][st.session_state['df_apropriacoes']['Obra'] == obra_sel]['Apropriacao'].tolist()
-                    st.text_input("Item", key="temp_item")
+                    c_item, c_qtd = st.columns([3, 1])
+                    c_item.text_input("Item", key="temp_item")
+                    c_qtd.number_input("Qtd", min_value=0.01, value=1.0, step=1.0, key="temp_qtd")
                     c1, c2 = st.columns(2)
                     c1.selectbox("Unidade", st.session_state['df_unidades']['Unidade'].tolist(), key="temp_unidade")
                     c2.date_input("Necessidade", value=date.today(), key="temp_data")
@@ -359,12 +365,13 @@ elif menu == "📦 Gestão de Suprimentos":
                     df_carrinho['Data_Necessidade'] = pd.to_datetime(df_carrinho['Data_Necessidade'])
 
                     df_carrinho_editado = st.data_editor(
-                        df_carrinho[['Item', 'Unidade', 'Apropriacao', 'Data_Necessidade']],
+                        df_carrinho[['Item', 'Qtd', 'Unidade', 'Apropriacao', 'Data_Necessidade']],
                         key="editor_carrinho_temp",
                         num_rows="dynamic",
                         use_container_width=True, # Essencial para Mobile
                         column_config={
-                            "Data_Necessidade": st.column_config.DateColumn("Necessidade", format="DD/MM/YYYY")
+                            "Data_Necessidade": st.column_config.DateColumn("Necessidade", format="DD/MM/YYYY"),
+                            "Qtd": st.column_config.NumberColumn("Qtd", min_value=0.01)
                         }
                     )
                     
@@ -396,7 +403,7 @@ elif menu == "📦 Gestão de Suprimentos":
             st.download_button("📥 Baixar Planilha (Excel)", data=converter_para_excel(df_v), file_name=f"pedidos_{obra_sel}.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
             
             df_ed = st.data_editor(df_v, key="ed_obra", use_container_width=True, 
-                disabled=["ID_Pedido", "Obra", "Item", "Unidade", "Apropriacao", "Data_Necessidade", "Solicitante", "Status_Compra", "Data_Previsao_Entrega", "Preço", "Fornecedor"],
+                disabled=["ID_Pedido", "Obra", "Item", "Qtd", "Unidade", "Apropriacao", "Data_Necessidade", "Solicitante", "Status_Compra", "Data_Previsao_Entrega", "Preço", "Fornecedor"],
                 column_config={
                     "Recebido_Na_Obra": st.column_config.CheckboxColumn("Recebido?"), 
                     "Data_Necessidade": st.column_config.DateColumn("Necessidade", format="DD/MM/YYYY"), 
@@ -431,7 +438,7 @@ elif menu == "📦 Gestão de Suprimentos":
         st.download_button("📥 Exportar Relatório de Compras", data=converter_para_excel(df_v), file_name="relatorio_compras.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
         df_ed = st.data_editor(df_v, key="ed_comp", use_container_width=True, 
-            disabled=["ID_Pedido", "Obra", "Item", "Unidade", "Apropriacao", "Data_Necessidade", "Solicitante", "Recebido_Na_Obra"],
+            disabled=["ID_Pedido", "Obra", "Item", "Qtd", "Unidade", "Apropriacao", "Data_Necessidade", "Solicitante", "Recebido_Na_Obra"],
             column_config={
                 "Status_Compra": st.column_config.SelectboxColumn("Status", options=["Pendente", "Cotação", "Comprado", "Cancelado"], required=True), 
                 "Data_Previsao_Entrega": st.column_config.DateColumn("Previsão", format="DD/MM/YYYY"), 
