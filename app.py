@@ -117,6 +117,11 @@ def buscar_dados(tabela):
         elif tabela == 'unidades':
             df = df.rename(columns={'unidade': 'Unidade'})
             
+        # Garantir que 'id' existe e está em minúsculo para operações internas
+        if not df.empty and 'id' not in df.columns:
+            # Caso o Supabase retorne ID (maiusculo) ou algo assim
+            df.columns = [c.lower() if c.lower() == 'id' else c for c in df.columns]
+
         return df
     except Exception as e:
         st.error(f"Erro ao buscar dados de {tabela}: {e}")
@@ -511,11 +516,14 @@ elif menu == "⚙️ Configurações (Admin)" and funcao == "Administrador":
                 curr_ob = str(curr['Obras_Acesso']).split(';') if str(curr['Obras_Acesso']) != 'nan' else []
                 no_e = st.multiselect("Obras", todas_obras, default=[x for x in curr_ob if x in todas_obras])
                 if st.form_submit_button("Salvar", use_container_width=True):
-                    id_db = st.session_state['df_usuarios'][st.session_state['df_usuarios']['Usuario'] == sel_u].iloc[0]['id']
-                    campos_upd = {"Senha": ns_e, "Funcao": nf_e, "Obras_Acesso": ";".join(no_e)}
-                    if atualizar_registro('usuarios', id_db, campos_upd):
-                        st.session_state['df_usuarios'] = buscar_dados('usuarios')
-                        st.rerun()
+                    id_db = curr.get('id')
+                    if id_db:
+                        campos_upd = {"Senha": ns_e, "Funcao": nf_e, "Obras_Acesso": ";".join(no_e)}
+                        if atualizar_registro('usuarios', id_db, campos_upd):
+                            st.session_state['df_usuarios'] = buscar_dados('usuarios')
+                            st.rerun()
+                    else:
+                        st.error("Erro: ID do usuário não encontrado.")
 
     with t2:
         with st.form("new_o"):
@@ -533,8 +541,9 @@ elif menu == "⚙️ Configurações (Admin)" and funcao == "Administrador":
             for idx, row in df_ed_o.iterrows():
                 orig = st.session_state['df_obras'].loc[idx]
                 if not row.equals(orig):
-                    id_db = st.session_state['df_obras'].loc[idx, 'id']
-                    atualizar_registro('obras', id_db, row.to_dict())
+                    id_db = orig.get('id')
+                    if id_db:
+                        atualizar_registro('obras', id_db, row.to_dict())
             st.session_state['df_obras'] = buscar_dados('obras')
             st.rerun()
 
