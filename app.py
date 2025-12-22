@@ -76,7 +76,7 @@ def buscar_dados(tabela):
         
         # Estrutura padrão (Garantir colunas caso a tabela esteja vazia)
         colunas_padrao = {
-            'solicitacoes': ['id', 'id_pedido', 'obra', 'item', 'unidade', 'apropriacao', 'data_necessidade', 'solicitante', 'status_compra', 'data_previsao_entrega', 'recebido_na_obra'],
+            'solicitacoes': ['id', 'id_pedido', 'obra', 'item', 'unidade', 'apropriacao', 'data_necessidade', 'solicitante', 'status_compra', 'data_previsao_entrega', 'recebido_na_obra', 'preco', 'fornecedor'],
             'usuarios': ['id', 'usuario', 'senha', 'funcao', 'obras_acesso'],
             'obras': ['id', 'nome_obra', 'endereco', 'status'],
             'apropriacoes': ['id', 'obra', 'apropriacao'],
@@ -86,7 +86,7 @@ def buscar_dados(tabela):
         if tabela in colunas_padrao:
             for col in colunas_padrao[tabela]:
                 if col not in df.columns:
-                    df[col] = None
+                    df[col] = 0 if col == 'preco' else ""
 
         # Ajustes de tipos e colunas (compatibilidade com código antigo)
         if tabela == 'solicitacoes':
@@ -95,11 +95,15 @@ def buscar_dados(tabela):
                 if col in df.columns:
                     df[col] = pd.to_datetime(df[col], errors='coerce')
             
+            # Garantir tipo numérico para preço
+            df['preco'] = pd.to_numeric(df['preco'], errors='coerce').fillna(0)
+            
             df = df.rename(columns={
                 'id_pedido': 'ID_Pedido', 'obra': 'Obra', 'item': 'Item', 'unidade': 'Unidade',
                 'apropriacao': 'Apropriacao', 'data_necessidade': 'Data_Necessidade',
                 'solicitante': 'Solicitante', 'status_compra': 'Status_Compra',
-                'data_previsao_entrega': 'Data_Previsao_Entrega', 'recebido_na_obra': 'Recebido_Na_Obra'
+                'data_previsao_entrega': 'Data_Previsao_Entrega', 'recebido_na_obra': 'Recebido_Na_Obra',
+                'preco': 'Preço', 'fornecedor': 'Fornecedor'
             })
         elif tabela == 'usuarios':
             df = df.rename(columns={'usuario': 'Usuario', 'senha': 'Senha', 'funcao': 'Funcao', 'obras_acesso': 'Obras_Acesso'})
@@ -173,6 +177,14 @@ if 'df_apropriacoes' not in st.session_state:
     st.session_state['df_apropriacoes'] = buscar_dados('apropriacoes')
 if 'df_unidades' not in st.session_state:
     st.session_state['df_unidades'] = buscar_dados('unidades')
+
+# Helper para exportação
+def converter_para_excel(df):
+    from io import BytesIO
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter' if 'xlsxwriter' in pd.io.excel.ExcelWriter.supported_engines else 'openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Planilha1')
+    return output.getvalue()
 
 if 'logado' not in st.session_state: st.session_state['logado'] = False
 if 'usuario_atual' not in st.session_state: st.session_state['usuario_atual'] = ''
@@ -275,10 +287,45 @@ if st.sidebar.button("Sair"):
     st.session_state['logado'] = False; st.session_state['carrinho_pedidos'] = []; st.rerun()
 
 st.sidebar.divider()
-menu = st.sidebar.radio("Menu", ["📦 Gestão de Suprimentos", "⚙️ Configurações (Admin)"] if funcao == "Administrador" else ["📦 Gestão de Suprimentos"])
+menu = st.sidebar.radio("Menu", ["📊 Dashboard", "📦 Gestão de Suprimentos", "⚙️ Configurações (Admin)"] if funcao == "Administrador" else ["📦 Gestão de Suprimentos"])
+
+# --- MENU: DASHBOARD ---
+if menu == "📊 Dashboard":
+    st.title("📊 Painel de Indicadores")
+    df = st.session_state['df_materiais']
+    
+    if df.empty:
+        st.info("Nenhum dado disponível para gerar indicadores.")
+    else:
+        # Métricas no topo
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Total de Pedidos", len(df['ID_Pedido'].unique()))
+        total_gasto = df['Preço'].sum()
+        c2.metric("Investimento Total", f"R$ {total_gasto:,.2f}")
+        pendentes = len(df[df['Status_Compra'] == 'Pendente'])
+        c3.metric("Aguardando Compra", pendentes, delta=pendentes, delta_color="inverse")
+        
+        st.divider()
+        
+        col_esq, col_dir = st.columns(2)
+        
+        with col_esq:
+            st.subheader("Pedidos por Obra")
+            obra_counts = df['Obra'].value_counts()
+            st.bar_chart(obra_counts)
+            
+        with col_dir:
+            st.subheader("Status das Solicitações")
+            status_counts = df['Status_Compra'].value_counts()
+            st.bar_chart(status_counts)
+            
+        st.divider()
+        st.subheader("Maiores Investimentos por Item")
+        top_itens = df.groupby('Item')['Preço'].sum().sort_values(ascending=False).head(10)
+        st.area_chart(top_itens)
 
 # --- MENU: GESTÃO DE SUPRIMENTOS ---
-if menu == "📦 Gestão de Suprimentos":
+elif menu == "📦 Gestão de Suprimentos":
     st.title(f"Painel do {funcao}")
 
     # --- 1. USUARIO OBRA ---
@@ -328,6 +375,9 @@ if menu == "📦 Gestão de Suprimentos":
 
                     if st.button("✅ Finalizar Pedido", type="primary", use_container_width=True): 
                         callback_finalizar_pedido()
+                        # Link WhatsApp Simples
+                        msg = f"Olá, fiz um novo pedido para a obra {obra_sel}. Verifique no sistema!"
+                        st.markdown(f"[📲 Notificar Comprador via WhatsApp](https://wa.me/?text={msg.replace(' ', '%20')})")
                         st.rerun()
                         
                     if st.button("🗑️ Esvaziar Tudo", use_container_width=True): 
@@ -342,8 +392,10 @@ if menu == "📦 Gestão de Suprimentos":
             if not df_v.empty: df_v = df_v.sort_values(by="ID_Pedido", ascending=False)
             
             # Tabela Obra
+            st.download_button("📥 Baixar Planilha (Excel)", data=converter_para_excel(df_v), file_name=f"pedidos_{obra_sel}.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            
             df_ed = st.data_editor(df_v, key="ed_obra", use_container_width=True, 
-                disabled=["ID_Pedido", "Obra", "Item", "Unidade", "Apropriacao", "Data_Necessidade", "Solicitante", "Status_Compra", "Data_Previsao_Entrega"],
+                disabled=["ID_Pedido", "Obra", "Item", "Unidade", "Apropriacao", "Data_Necessidade", "Solicitante", "Status_Compra", "Data_Previsao_Entrega", "Preço", "Fornecedor"],
                 column_config={
                     "Recebido_Na_Obra": st.column_config.CheckboxColumn("Recebido?"), 
                     "Data_Necessidade": st.column_config.DateColumn("Necessidade", format="DD/MM/YYYY"), 
@@ -375,12 +427,15 @@ if menu == "📦 Gestão de Suprimentos":
         f_obra = st.selectbox("Filtrar Obra", ["Todas"] + obras_visiveis)
         df_v = st.session_state['df_materiais'] if f_obra == "Todas" else st.session_state['df_materiais'][st.session_state['df_materiais']['Obra'] == f_obra]
         
+        st.download_button("📥 Exportar Relatório de Compras", data=converter_para_excel(df_v), file_name="relatorio_compras.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
         df_ed = st.data_editor(df_v, key="ed_comp", use_container_width=True, 
             disabled=["ID_Pedido", "Obra", "Item", "Unidade", "Apropriacao", "Data_Necessidade", "Solicitante", "Recebido_Na_Obra"],
             column_config={
                 "Status_Compra": st.column_config.SelectboxColumn("Status", options=["Pendente", "Cotação", "Comprado", "Cancelado"], required=True), 
                 "Data_Previsao_Entrega": st.column_config.DateColumn("Previsão", format="DD/MM/YYYY"), 
-                "Data_Necessidade": st.column_config.DateColumn("Necessidade", format="DD/MM/YYYY")
+                "Data_Necessidade": st.column_config.DateColumn("Necessidade", format="DD/MM/YYYY"),
+                "Preço": st.column_config.NumberColumn("Preço (R$)", format="R$ %.2f")
             })
         if not df_ed.equals(df_v):
             for idx, row in df_ed.iterrows():
@@ -395,10 +450,13 @@ if menu == "📦 Gestão de Suprimentos":
     # --- 3. ADMIN ---
     elif funcao == "Administrador":
         st.subheader("Admin Geral")
+        st.download_button("📥 Baixar Base Completa", data=converter_para_excel(st.session_state['df_materiais']), file_name="base_total_materiais.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        
         df_ed = st.data_editor(st.session_state['df_materiais'], key="ed_adm", num_rows="dynamic", use_container_width=True, 
             column_config={
                 "Data_Necessidade": st.column_config.DateColumn(format="DD/MM/YYYY"), 
-                "Data_Previsao_Entrega": st.column_config.DateColumn(format="DD/MM/YYYY")
+                "Data_Previsao_Entrega": st.column_config.DateColumn(format="DD/MM/YYYY"),
+                "Preço": st.column_config.NumberColumn("Preço (R$)", format="R$ %.2f")
             })
         if not df_ed.equals(st.session_state['df_materiais']):
             # No Admin o editor dinâmico é mais complexo com Supabase sem Sync
