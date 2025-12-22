@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Streamlit (Credenciais locais)
+.streamlit/
+
+# Arquivos de Dados (Antigos CSVs)
+db_*.csv
+
+# Outros
+.DS_Store
+.env
