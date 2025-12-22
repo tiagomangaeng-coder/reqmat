@@ -19,9 +19,10 @@ st.markdown("""
         /* Estilo Base (PC) */
         .footer {
             position: fixed;
-            right: 15px;
+            left: 50%;
             bottom: 10px;
-            text-align: right;
+            transform: translateX(-50%);
+            text-align: center;
             font-family: sans-serif;
             color: #888;
             font-size: 12px;
