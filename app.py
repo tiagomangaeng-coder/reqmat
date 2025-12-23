@@ -22,83 +22,67 @@ st.markdown("""
             font-family: 'Inter', sans-serif;
         }
 
-        /* Estilo Base - Design Premium */
+        /* Estilo Base - Limpo e Profissional */
         .stApp {
-            background-color: #f8fafc;
+            background-color: white;
         }
         
-        /* Garantir contraste de texto em Labels e Markdowns */
-        .stMarkdown, p, span, label {
-            color: #1e293b !important;
+        /* Contraste Máximo: Textos pretos e Azul Escuro */
+        .stMarkdown, p, span, label, .stTextInput label {
+            color: #000000 !important;
         }
         
-        /* Ajuste específico para Títulos e Métricas */
-        h1, h2, h3, .metric-value {
+        h1, h2, h3 {
             color: #1e3a8a !important;
+            font-weight: 700;
         }
 
-        /* Estilização de Campos de Entrada (Inputs) */
+        /* Campos de Entrada Realçados */
         .stTextInput input {
-            background-color: white !important;
-            color: #1e293b !important;
-            border-radius: 10px !important;
-            border: 1px solid #e2e8f0 !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid #cccccc !important;
+            border-radius: 8px !important;
         }
 
-        /* Cards Modernos */
+        /* Cards de Métricas Simplificados */
         .metric-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
+            background: #ffffff;
+            border-radius: 12px;
             padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-            transition: transform 0.2s ease-in-out;
+            border: 2px solid #f1f5f9;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             text-align: center;
-        }
-        .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            margin-bottom: 20px;
         }
         .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #1e3a8a;
-            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #1e3a8a !important;
         }
         .metric-label {
             font-size: 0.9rem;
-            color: #64748b;
+            color: #475569;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-top: 8px;
         }
 
-        /* Estilização de Botões */
+        /* Botões Sólidos e Legíveis */
         div.stButton > button {
             background-color: #1e3a8a !important;
-            color: white !important;
-            border-radius: 12px;
+            color: #ffffff !important;
+            border-radius: 8px;
             font-weight: 700 !important;
-            padding: 0.6rem 2rem;
-            transition: all 0.3s;
+            padding: 0.7rem 2rem;
             border: none;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             width: 100%;
+            transition: background 0.2s;
         }
-        /* Reforço para a cor do texto do botão */
         div.stButton > button p, div.stButton > button span {
-            color: white !important;
-            font-weight: 700 !important;
+            color: #ffffff !important;
         }
         div.stButton > button:hover {
-            background-color: #1e40af !important;
-            color: white !important;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-        }
-        div.stButton > button:active {
-            transform: translateY(0);
+            background-color: #0f172a !important;
         }
 
         /* Rodapé Refinado */
@@ -128,13 +112,13 @@ st.markdown("""
             .metric-value { font-size: 1.5rem; }
         }
 
-        /* SPLASH SCREEN OPTIMIZED */
+        /* SPLASH SCREEN */
         .splash-container {
-            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+            background-color: white;
         }
     </style>
     <div class="footer">
-        ✨ Desenvolvido por <b>Tiago Manga</b> | Versão 1.2 Premium
+        Desenvolvido por <b>Tiago Manga</b> | Versão 1.3
     </div>
     """, unsafe_allow_html=True)
 
