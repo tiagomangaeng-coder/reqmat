@@ -53,11 +53,72 @@ st.markdown("""
                 padding-right: 1rem !important;
             }
         }
+        
+        /* SPLASH SCREEN */
+        .splash-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            animation: fadeOut 3.5s forwards;
+        }
+        .splash-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1E3A8A;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .splash-subtitle {
+            font-size: 1.8rem;
+            color: #3B82F6;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3B82F6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; visibility: visible; }
+            85% { opacity: 1; visibility: visible; }
+            100% { opacity: 0; visibility: hidden; }
+        }
     </style>
     <div class="footer">
-        Desenvolvido por Tiago Manga - Versão Mobile 1.0
+        Desenvolvido por Tiago Manga - Versão 1.1
     </div>
     """, unsafe_allow_html=True)
+
+# --- 3. TELA DE ABERTURA (LOADER) ---
+if 'splash_mostrado' not in st.session_state:
+    st.session_state['splash_mostrado'] = True
+    splash = st.empty()
+    with splash.container():
+        st.markdown("""
+            <div class="splash-container">
+                <div class="splash-title">Sistema de Requisições</div>
+                <div class="splash-subtitle">Vander Velden</div>
+                <div class="loader"></div>
+            </div>
+        """, unsafe_allow_html=True)
+    time.sleep(3)
+    splash.empty()
 
 # --- CONFIGURAÇÃO SUPABASE ---
 try:
