@@ -79,12 +79,17 @@ st.markdown("""
             background-color: #1e3a8a !important;
             color: white !important;
             border-radius: 12px;
-            font-weight: 600;
+            font-weight: 700 !important;
             padding: 0.6rem 2rem;
             transition: all 0.3s;
             border: none;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             width: 100%;
+        }
+        /* Reforço para a cor do texto do botão */
+        div.stButton > button p, div.stButton > button span {
+            color: white !important;
+            font-weight: 700 !important;
         }
         div.stButton > button:hover {
             background-color: #1e40af !important;
