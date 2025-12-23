@@ -28,13 +28,21 @@ st.markdown("""
         }
         
         /* Garantir contraste de texto em Labels e Markdowns */
-        .stMarkdown, p, span, label, div {
-            color: #1e293b;
+        .stMarkdown, p, span, label {
+            color: #1e293b !important;
         }
         
         /* Ajuste específico para Títulos e Métricas */
         h1, h2, h3, .metric-value {
             color: #1e3a8a !important;
+        }
+
+        /* Estilização de Campos de Entrada (Inputs) */
+        .stTextInput input {
+            background-color: white !important;
+            color: #1e293b !important;
+            border-radius: 10px !important;
+            border: 1px solid #e2e8f0 !important;
         }
 
         /* Cards Modernos */
@@ -68,16 +76,24 @@ st.markdown("""
 
         /* Estilização de Botões */
         div.stButton > button {
+            background-color: #1e3a8a !important;
+            color: white !important;
             border-radius: 12px;
             font-weight: 600;
-            padding: 0.5rem 1rem;
-            transition: all 0.2s;
+            padding: 0.6rem 2rem;
+            transition: all 0.3s;
             border: none;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
         }
         div.stButton > button:hover {
-            opacity: 0.9;
-            transform: scale(1.02);
+            background-color: #1e40af !important;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        }
+        div.stButton > button:active {
+            transform: translateY(0);
         }
 
         /* Rodapé Refinado */
