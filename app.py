@@ -22,85 +22,59 @@ st.markdown("""
             font-family: 'Inter', sans-serif;
         }
 
-        /* Estilo Base - Limpo e Profissional */
-        .stApp {
-            background-color: white;
+        /* Fundo Branco em Tudo */
+        .stApp, [data-testid="stSidebar"], .stTextInput input, .stSelectbox select, .stMetric, .metric-card {
+            background-color: #ffffff !important;
         }
         
-        /* Contraste Máximo: Textos pretos e Azul Escuro */
-        .stMarkdown, p, span, label, .stTextInput label {
+        /* Letras Pretas e Azul Escuro em Tudo - SEM TEXTO BRANCO */
+        .stMarkdown, p, span, label, .stTextInput label, .stSelectbox label, h1, h2, h3, .metric-value, .metric-label, .footer, div, button {
             color: #000000 !important;
         }
         
         h1, h2, h3 {
             color: #1e3a8a !important;
-            font-weight: 700;
         }
 
-        /* Campos de Entrada Realçados */
+        /* Inputs Limpos */
         .stTextInput input {
-            background-color: #ffffff !important;
-            color: #000000 !important;
             border: 1px solid #cccccc !important;
-            border-radius: 8px !important;
+            border-radius: 5px !important;
         }
 
-        /* Cards de Métricas Simplificados */
-        .metric-card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 20px;
-            border: 2px solid #f1f5f9;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .metric-value {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: #1e3a8a !important;
-        }
-        .metric-label {
-            font-size: 0.9rem;
-            color: #475569;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        /* Botões com Fundo Branco */
+        /* Botões Sólidos: Fundo Branco e Borda Azul */
         div.stButton > button {
             background-color: #ffffff !important;
             color: #1e3a8a !important;
-            border-radius: 8px;
-            font-weight: 700 !important;
-            padding: 0.7rem 2rem;
             border: 2px solid #1e3a8a !important;
+            border-radius: 5px;
+            font-weight: 700 !important;
+            padding: 0.5rem 1rem;
             width: 100%;
             transition: all 0.2s;
         }
-        /* Reforço para que o texto do botão seja AZUL ESCURO */
+        div.stButton > button:hover {
+            background-color: #f8fafc !important;
+            border-color: #000000 !important;
+            color: #000000 !important;
+        }
+        /* Forçar cor do texto dentro do botão para NÃO ser branco */
         div.stButton > button * {
             color: #1e3a8a !important;
         }
-        div.stButton > button:hover {
-            background-color: #f1f5f9 !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
 
-        /* Rodapé Refinado */
+        /* Rodapé Simples */
         .footer {
             position: fixed;
             left: 50%;
-            bottom: 15px;
+            bottom: 10px;
             transform: translateX(-50%);
             text-align: center;
-            color: #94a3b8;
             font-size: 11px;
             z-index: 999;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 8px 20px;
-            border-radius: 50px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            padding: 5px 15px;
+            border: 1px solid #eeeeee;
         }
         
         /* MOBILE */
@@ -109,18 +83,16 @@ st.markdown("""
                 position: static;
                 transform: none;
                 margin: 20px auto;
-                width: 80%;
             }
-            .metric-value { font-size: 1.5rem; }
         }
 
-        /* SPLASH SCREEN */
-        .splash-container {
-            background-color: white;
-        }
+        /* Splash Screen */
+        .splash-container { background-color: #ffffff; }
+        .splash-title { color: #1e3a8a; }
+        .splash-subtitle { color: #000000; }
     </style>
     <div class="footer">
-        Desenvolvido por <b>Tiago Manga</b> | Versão 1.3
+        Desenvolvido por Tiago Manga | Versão 1.4
     </div>
     """, unsafe_allow_html=True)
 
