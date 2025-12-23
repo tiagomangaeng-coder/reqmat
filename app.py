@@ -16,92 +16,94 @@ st.set_page_config(
 # --- 2. CSS RESPONSIVO (O SEGREDO DA ADAPTAÇÃO) ---
 st.markdown("""
     <style>
-        /* Estilo Base (PC) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        html, body, [class*="css"] {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Estilo Base - Design Premium */
+        .stApp {
+            background-color: #f8fafc;
+        }
+
+        /* Cards Modernos */
+        .metric-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s ease-in-out;
+            text-align: center;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin: 0;
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 8px;
+        }
+
+        /* Estilização de Botões */
+        div.stButton > button {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            transition: all 0.2s;
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        div.stButton > button:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        /* Rodapé Refinado */
         .footer {
             position: fixed;
             left: 50%;
-            bottom: 10px;
+            bottom: 15px;
             transform: translateX(-50%);
             text-align: center;
-            font-family: sans-serif;
-            color: #888;
-            font-size: 12px;
+            color: #94a3b8;
+            font-size: 11px;
             z-index: 999;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 5px;
-            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         
-        /* Ajustes para MOBILE (Telas menores que 768px) */
+        /* MOBILE */
         @media (max-width: 768px) {
-            /* Títulos menores no celular */
-            h1 { font-size: 1.5rem !important; }
-            h2 { font-size: 1.3rem !important; }
-            h3 { font-size: 1.1rem !important; }
-            
-            /* Rodapé deixa de ser fixo para não cobrir botões */
             .footer {
                 position: static;
-                text-align: center;
-                margin-top: 20px;
+                transform: none;
+                margin: 20px auto;
+                width: 80%;
             }
-            
-            /* Remove margens excessivas no topo */
-            .block-container {
-                padding-top: 2rem !important;
-                padding-left: 1rem !important;
-                padding-right: 1rem !important;
-            }
+            .metric-value { font-size: 1.5rem; }
         }
-        
-        /* SPLASH SCREEN */
+
+        /* SPLASH SCREEN OPTIMIZED */
         .splash-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 99999;
-            animation: fadeOut 3.5s forwards;
-        }
-        .splash-title {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #1E3A8A;
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-        .splash-subtitle {
-            font-size: 1.8rem;
-            color: #3B82F6;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3B82F6;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes fadeOut {
-            0% { opacity: 1; visibility: visible; }
-            85% { opacity: 1; visibility: visible; }
-            100% { opacity: 0; visibility: hidden; }
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
         }
     </style>
     <div class="footer">
-        Desenvolvido por Tiago Manga - Versão 1.1
+        ✨ Desenvolvido por <b>Tiago Manga</b> | Versão 1.2 Premium
     </div>
     """, unsafe_allow_html=True)
 
@@ -388,13 +390,31 @@ if menu == "📊 Dashboard":
     if df.empty:
         st.info("Nenhum dado disponível para gerar indicadores.")
     else:
-        # Métricas no topo
+        # Métricas em Cards
         c1, c2, c3 = st.columns(3)
-        c1.metric("Total de Pedidos", len(df['ID_Pedido'].unique()))
-        total_gasto = df['Preço'].sum()
-        c2.metric("Investimento Total", f"R$ {total_gasto:,.2f}")
-        pendentes = len(df[df['Status_Compra'] == 'Pendente'])
-        c3.metric("Aguardando Compra", pendentes, delta=pendentes, delta_color="inverse")
+        with c1:
+            st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-value">{len(df['ID_Pedido'].unique())}</div>
+                    <div class="metric-label">📦 Total de Pedidos</div>
+                </div>
+            """, unsafe_allow_html=True)
+        with c2:
+            total_gasto = df['Preço'].sum()
+            st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-value">R$ {total_gasto:,.2f}</div>
+                    <div class="metric-label">💰 Investimento Total</div>
+                </div>
+            """, unsafe_allow_html=True)
+        with c3:
+            pendentes = len(df[df['Status_Compra'] == 'Pendente'])
+            st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-value">{pendentes}</div>
+                    <div class="metric-label">⏳ Aguardando Compra</div>
+                </div>
+            """, unsafe_allow_html=True)
         
         st.divider()
         
@@ -434,13 +454,13 @@ elif menu == "📦 Gestão de Suprimentos":
                 with st.form("add_item", clear_on_submit=True):
                     l_aprop = st.session_state['df_apropriacoes'][st.session_state['df_apropriacoes']['Obra'] == obra_sel]['Apropriacao'].tolist()
                     c_item, c_qtd = st.columns([3, 1])
-                    c_item.text_input("Item", key="temp_item")
-                    c_qtd.number_input("Qtd", min_value=0.01, value=1.0, step=1.0, key="temp_qtd")
+                    c_item.text_input("Item", key="temp_item", help="Ex: Cimento, Areia, Brita...")
+                    c_qtd.number_input("Qtd", min_value=0.01, value=1.0, step=0.01, key="temp_qtd", help="Quantidade do material")
                     c1, c2 = st.columns(2)
-                    c1.selectbox("Unidade", st.session_state['df_unidades']['Unidade'].tolist(), key="temp_unidade")
-                    c2.date_input("Necessidade", value=date.today(), key="temp_data")
-                    st.selectbox("Apropriação", l_aprop, key="temp_aprop")
-                    st.form_submit_button("Adicionar", on_click=callback_adicionar_ao_carrinho, use_container_width=True) # Botão largo no mobile
+                    c1.selectbox("Unidade", st.session_state['df_unidades']['Unidade'].tolist(), key="temp_unidade", help="Unidade de medida (kg, m, un...)")
+                    c2.date_input("Necessidade", value=date.today(), key="temp_data", help="Data em que o material deve estar na obra")
+                    st.selectbox("Apropriação", l_aprop, key="temp_aprop", help="Centro de custo ou etapa da obra")
+                    st.form_submit_button("➕ Adicionar ao Carrinho", on_click=callback_adicionar_ao_carrinho, use_container_width=True)
             
             with c_cart:
                 st.subheader("2. Carrinho (Editável)")
@@ -543,24 +563,24 @@ elif menu == "📦 Gestão de Suprimentos":
 
     # --- 3. ADMIN ---
     elif funcao == "Administrador":
-        st.subheader("Admin Geral")
-        st.download_button("📥 Baixar Base Completa", data=converter_para_excel(st.session_state['df_materiais']), file_name="base_total_materiais.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        st.subheader("🛠️ Painel de Controle Admin")
+        st.caption("Visão total de todos os pedidos e custos da empresa.")
+        st.download_button("📥 Baixar Base Completa (Excel)", data=converter_para_excel(st.session_state['df_materiais']), file_name="base_total_materiais.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
         
         df_ed = st.data_editor(st.session_state['df_materiais'], key="ed_adm", num_rows="dynamic", use_container_width=True, 
             column_config={
-                "Data_Necessidade": st.column_config.DateColumn(format="DD/MM/YYYY"), 
-                "Data_Previsao_Entrega": st.column_config.DateColumn(format="DD/MM/YYYY"),
+                "Data_Necessidade": st.column_config.DateColumn("Necessidade", format="DD/MM/YYYY"), 
+                "Data_Previsao_Entrega": st.column_config.DateColumn("Previsão", format="DD/MM/YYYY"),
                 "Preço": st.column_config.NumberColumn("Preço (R$)", format="R$ %.2f", min_value=0.0, step=0.01)
             })
         if not df_ed.equals(st.session_state['df_materiais']):
-            # No Admin o editor dinâmico é mais complexo com Supabase sem Sync
-            # Por simplicidade neste MVP, focamos nas edições. 
-            # Para deleções/inserções em massa no Admin, o ideal é usar botões dedicados ou lógica de diff.
-            st.warning("Edições em massa via Admin estão em modo leitura com Supabase. Use as telas específicas para cadastros.")
+            st.warning("⚠️ Edições em massa via Admin estão em modo leitura com Supabase. Use as abas específicas abaixo para novos cadastros.")
 
 # --- MENU: CONFIGURAÇÕES (ADMIN) ---
 elif menu == "⚙️ Configurações (Admin)" and funcao == "Administrador":
-    t1, t2, t3, t4 = st.tabs(["Usuários", "Obras", "Apropriações", "Unidades"])
+    st.title("⚙️ Configurações Avançadas")
+    st.caption("Gerencie usuários, obras, custos e unidades de medida.")
+    t1, t2, t3, t4 = st.tabs(["👥 Usuários", "🏗️ Obras", "💰 Apropriações", "📏 Unidades"])
     
     with t1:
         with st.form("new_u", clear_on_submit=True):
@@ -592,9 +612,10 @@ elif menu == "⚙️ Configurações (Admin)" and funcao == "Administrador":
                         st.error("Erro: ID do usuário não encontrado.")
 
     with t2:
+        st.subheader("🏢 Cadastrar Nova Obra")
         with st.form("new_o"):
-            no = st.text_input("Nome")
-            if st.form_submit_button("Criar Obra", use_container_width=True):
+            no = st.text_input("Nome da Obra", help="Ex: Residencial Verona, Edifício Solaris...")
+            if st.form_submit_button("🔨 Criar Obra", use_container_width=True):
                 if no:
                     novo_o = {"Nome_Obra": no, "Endereco": "", "Status": "Ativa"}
                     if salvar_registro('obras', novo_o):
