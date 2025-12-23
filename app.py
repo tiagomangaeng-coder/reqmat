@@ -26,6 +26,16 @@ st.markdown("""
         .stApp {
             background-color: #f8fafc;
         }
+        
+        /* Garantir contraste de texto em Labels e Markdowns */
+        .stMarkdown, p, span, label, div {
+            color: #1e293b;
+        }
+        
+        /* Ajuste específico para Títulos e Métricas */
+        h1, h2, h3, .metric-value {
+            color: #1e3a8a !important;
+        }
 
         /* Cards Modernos */
         .metric-card {
