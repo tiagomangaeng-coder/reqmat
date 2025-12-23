@@ -69,20 +69,22 @@ st.markdown("""
 
         /* Botões Sólidos e Legíveis */
         div.stButton > button {
-            background-color: #1e3a8a !important;
+            background-color: #000000 !important;
             color: #ffffff !important;
             border-radius: 8px;
             font-weight: 700 !important;
             padding: 0.7rem 2rem;
-            border: none;
+            border: 1px solid #333333;
             width: 100%;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
-        div.stButton > button p, div.stButton > button span {
+        /* Reforço absoluto para que o texto do botão seja BRANCO */
+        div.stButton > button * {
             color: #ffffff !important;
         }
         div.stButton > button:hover {
-            background-color: #0f172a !important;
+            background-color: #333333 !important;
+            border-color: #ffffff;
         }
 
         /* Rodapé Refinado */
