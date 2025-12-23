@@ -367,12 +367,17 @@ else:
 
 if os.path.exists("logo.png"): st.sidebar.image("logo.png", width=150)
 
-st.sidebar.markdown(f"### 👤 {usuario}")
-st.sidebar.markdown(f"**Cargo:** {funcao}")
+st.sidebar.markdown(f"**Usuário:** {st.session_state['usuario_atual']}")
+st.sidebar.markdown(f"**Função:** {funcao}")
 if st.sidebar.button("Sair"):
     st.session_state['logado'] = False; st.session_state['carrinho_pedidos'] = []; st.rerun()
 
 st.sidebar.divider()
+
+# Dica de Formatação
+st.sidebar.info("💡 **Dica:** Use ponto `.` para centavos (ex: 50.50) caso a vírgula não funcione no seu navegador.")
+
+# Menu lateral
 menu = st.sidebar.radio("Menu", ["📊 Dashboard", "📦 Gestão de Suprimentos", "⚙️ Configurações (Admin)"] if funcao == "Administrador" else ["📦 Gestão de Suprimentos"])
 
 # --- MENU: DASHBOARD ---
@@ -452,7 +457,7 @@ elif menu == "📦 Gestão de Suprimentos":
                         use_container_width=True, # Essencial para Mobile
                         column_config={
                             "Data_Necessidade": st.column_config.DateColumn("Necessidade", format="DD/MM/YYYY"),
-                            "Qtd": st.column_config.NumberColumn("Qtd", min_value=0.01)
+                            "Qtd": st.column_config.NumberColumn("Qtd", min_value=0.01, step=0.01)
                         }
                     )
                     
@@ -524,7 +529,7 @@ elif menu == "📦 Gestão de Suprimentos":
                 "Status_Compra": st.column_config.SelectboxColumn("Status", options=["Pendente", "Cotação", "Comprado", "Cancelado"], required=True), 
                 "Data_Previsao_Entrega": st.column_config.DateColumn("Previsão", format="DD/MM/YYYY"), 
                 "Data_Necessidade": st.column_config.DateColumn("Necessidade", format="DD/MM/YYYY"),
-                "Preço": st.column_config.NumberColumn("Preço (R$)", format="R$ %.2f")
+                "Preço": st.column_config.NumberColumn("Preço (R$)", format="R$ %.2f", min_value=0.0, step=0.01)
             })
         if not df_ed.equals(df_v):
             for idx, row in df_ed.iterrows():
@@ -545,7 +550,7 @@ elif menu == "📦 Gestão de Suprimentos":
             column_config={
                 "Data_Necessidade": st.column_config.DateColumn(format="DD/MM/YYYY"), 
                 "Data_Previsao_Entrega": st.column_config.DateColumn(format="DD/MM/YYYY"),
-                "Preço": st.column_config.NumberColumn("Preço (R$)", format="R$ %.2f")
+                "Preço": st.column_config.NumberColumn("Preço (R$)", format="R$ %.2f", min_value=0.0, step=0.01)
             })
         if not df_ed.equals(st.session_state['df_materiais']):
             # No Admin o editor dinâmico é mais complexo com Supabase sem Sync
