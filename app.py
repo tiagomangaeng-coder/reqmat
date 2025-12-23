@@ -67,24 +67,24 @@ st.markdown("""
             text-transform: uppercase;
         }
 
-        /* Botões Sólidos e Legíveis */
+        /* Botões com Fundo Branco */
         div.stButton > button {
-            background-color: #000000 !important;
-            color: #ffffff !important;
+            background-color: #ffffff !important;
+            color: #1e3a8a !important;
             border-radius: 8px;
             font-weight: 700 !important;
             padding: 0.7rem 2rem;
-            border: 1px solid #333333;
+            border: 2px solid #1e3a8a !important;
             width: 100%;
             transition: all 0.2s;
         }
-        /* Reforço absoluto para que o texto do botão seja BRANCO */
+        /* Reforço para que o texto do botão seja AZUL ESCURO */
         div.stButton > button * {
-            color: #ffffff !important;
+            color: #1e3a8a !important;
         }
         div.stButton > button:hover {
-            background-color: #333333 !important;
-            border-color: #ffffff;
+            background-color: #f1f5f9 !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         /* Rodapé Refinado */
