@@ -4,6 +4,8 @@ import os
 from datetime import date
 import time
 from supabase import create_client, Client
+import plotly.express as px
+import plotly.graph_objects as go
 
 # --- 1. CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(
@@ -90,6 +92,29 @@ st.markdown("""
         .splash-container { background-color: #ffffff; }
         .splash-title { color: #1e3a8a; }
         .splash-subtitle { color: #000000; }
+
+        /* Estilos do Dashboard Moderno */
+        .metric-card-blue {
+            background-color: #eff6ff !important;
+            border: 2px solid #3b82f6 !important;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .metric-card-green {
+            background-color: #f0fdf4 !important;
+            border: 2px solid #22c55e !important;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .metric-card-orange {
+            background-color: #fff7ed !important;
+            border: 2px solid #f97316 !important;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
     </style>
     <div class="footer">
         Desenvolvido por Tiago Manga | Versão 1.4
@@ -379,29 +404,29 @@ if menu == "📊 Dashboard":
     if df.empty:
         st.info("Nenhum dado disponível para gerar indicadores.")
     else:
-        # Métricas em Cards
+        # Métricas em Cards Coloridos
         c1, c2, c3 = st.columns(3)
         with c1:
             st.markdown(f"""
-                <div class="metric-card">
-                    <div class="metric-value">{len(df['ID_Pedido'].unique())}</div>
-                    <div class="metric-label">📦 Total de Pedidos</div>
+                <div class="metric-card-blue">
+                    <div style="font-size: 2.2rem; font-weight: 800; color: #1e40af;">{len(df['ID_Pedido'].unique())}</div>
+                    <div style="font-size: 0.9rem; color: #1e40af; font-weight: 600;">📦 TOTAL DE PEDIDOS</div>
                 </div>
             """, unsafe_allow_html=True)
         with c2:
             total_gasto = df['Preço'].sum()
             st.markdown(f"""
-                <div class="metric-card">
-                    <div class="metric-value">R$ {total_gasto:,.2f}</div>
-                    <div class="metric-label">💰 Investimento Total</div>
+                <div class="metric-card-green">
+                    <div style="font-size: 2.2rem; font-weight: 800; color: #166534;">R$ {total_gasto:,.2f}</div>
+                    <div style="font-size: 0.9rem; color: #166534; font-weight: 600;">💰 INVESTIMENTO TOTAL</div>
                 </div>
             """, unsafe_allow_html=True)
         with c3:
             pendentes = len(df[df['Status_Compra'] == 'Pendente'])
             st.markdown(f"""
-                <div class="metric-card">
-                    <div class="metric-value">{pendentes}</div>
-                    <div class="metric-label">⏳ Aguardando Compra</div>
+                <div class="metric-card-orange">
+                    <div style="font-size: 2.2rem; font-weight: 800; color: #9a3412;">{pendentes}</div>
+                    <div style="font-size: 0.9rem; color: #9a3412; font-weight: 600;">⏳ AGUARDANDO COMPRA</div>
                 </div>
             """, unsafe_allow_html=True)
         
@@ -410,19 +435,30 @@ if menu == "📊 Dashboard":
         col_esq, col_dir = st.columns(2)
         
         with col_esq:
-            st.subheader("Pedidos por Obra")
-            obra_counts = df['Obra'].value_counts()
-            st.bar_chart(obra_counts)
+            st.subheader("📊 Pedidos por Obra")
+            obra_counts = df['Obra'].value_counts().reset_index()
+            obra_counts.columns = ['Obra', 'Quantidade']
+            fig_obra = px.bar(obra_counts, x='Obra', y='Quantidade', 
+                             color='Obra', color_discrete_sequence=px.colors.qualitative.Pastel)
+            fig_obra.update_layout(showlegend=False, plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+            st.plotly_chart(fig_obra, use_container_width=True)
             
         with col_dir:
-            st.subheader("Status das Solicitações")
-            status_counts = df['Status_Compra'].value_counts()
-            st.bar_chart(status_counts)
+            st.subheader("📈 Status das Solicitações")
+            status_counts = df['Status_Compra'].value_counts().reset_index()
+            status_counts.columns = ['Status', 'Quantidade']
+            fig_status = px.pie(status_counts, names='Status', values='Quantidade', 
+                               hole=0.4, color_discrete_sequence=px.colors.qualitative.Safe)
+            fig_status.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+            st.plotly_chart(fig_status, use_container_width=True)
             
         st.divider()
-        st.subheader("Maiores Investimentos por Item")
-        top_itens = df.groupby('Item')['Preço'].sum().sort_values(ascending=False).head(10)
-        st.area_chart(top_itens)
+        st.subheader("🏅 Maiores Investimentos por Item")
+        top_itens = df.groupby('Item')['Preço'].sum().sort_values(ascending=False).head(10).reset_index()
+        fig_itens = px.bar(top_itens, x='Preço', y='Item', orientation='h', 
+                          color='Preço', color_continuous_scale='Blues')
+        fig_itens.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+        st.plotly_chart(fig_itens, use_container_width=True)
 
 # --- MENU: GESTÃO DE SUPRIMENTOS ---
 elif menu == "📦 Gestão de Suprimentos":
